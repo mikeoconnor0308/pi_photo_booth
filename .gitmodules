@@ -1,0 +1,3 @@
+[submodule "instagram"]
+	path = instagram
+	url = https://github.com/LevPasha/Instagram-API-python.git
