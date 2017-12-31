@@ -3,7 +3,12 @@ Simple Raspberry Pi Camera Module Photo Booth
 
 ## Setup 
 
-Required packages: 
+Required software: 
+* ffmpeg
+
+Required python packages: 
+* pygame
+* picamera
 * requests_toolbelt
 * movie_py
 
