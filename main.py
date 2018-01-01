@@ -5,6 +5,7 @@ import atexit
 import os
 import sys
 import pygame
+from gamescreen import PhotoboothGame
 
 #######################
 ### Variables Config ##
@@ -21,47 +22,36 @@ shoot = 12
 ####################
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(led,GPIO.OUT)
-GPIO.setup(focus,GPIO.OUT)
-GPIO.setup(shoot,GPIO.OUT)
-GPIO.setup(big_button,GPIO.IN)
-GPIO.setup(stop_button,GPIO.IN)
+GPIO.setup(led, GPIO.OUT)
+GPIO.setup(focus, GPIO.OUT)
+GPIO.setup(shoot, GPIO.OUT)
+GPIO.setup(big_button, GPIO.IN)
+GPIO.setup(stop_button, GPIO.IN)
 GPIO.setup(32, GPIO.OUT, initial=False)
 
 camera = picamera.PiCamera()
+
+camera.resolution = (1024, 768)
 camera.annotate_text_size = 70
 camera.annotate_background = picamera.Color('white')
 camera.annotate_foreground = picamera.Color('black')
+camera.exposure_compensation = 25
 
 # initialise directory.
 photo_dir = "photos"
 if not os.path.exists(photo_dir):
     os.makedirs(photo_dir)
 
-
-# set up game screen
-pygame.init()
-screen = pygame.display.set_mode((pygame.display.Info().current_w, pygame.display.Info().current_h), pygame.FULLSCREEN)
-black = pygame.Color(0 , 0, 0)
-
-def shut_it_down(channel):
-    print('Exiting!')
-    camera.stop_preview()
-    GPIO.output(led,0)
-    GPIO.cleanup()
-    camera.close()
-    pygame.quit()
-    os._exit(0)
-    #os.system("sudo halt")
+game = PhotoboothGame(photo_dir)
 
 
-def countdown(time):
-    i = time
+def countdown(t):
+    i = t
     while i > 0:
         camera.annotate_text = '   5   '
         print('5')
         time.sleep(1)
-        i -=1
+        i -= 1
     camera.annotate_text = ''
 
 
@@ -73,44 +63,34 @@ def take_photo():
         camera.annotate_text = '   Get ready!   '
         print('Get ready!')
         # TODO ready time
-        time.sleep(1)
         # countdown(1)
         print('Taking photo')
         camera.annotate_text = ''
         GPIO.output(focus, 0)
-        screen.fill(black)
-        pygame.display.update()
+        # switch game to not showing anything.
+        game.capturing_phase()
         camera.stop_preview()
         GPIO.output(shoot, 1)
-        camera.capture("{}/weddingshots-{}.jpg".format(photo_dir, now))
+        camera.capture("{}/weddingshot.jpg".format(photo_dir))
         time.sleep(1)
         GPIO.output(shoot, 0)
 
     finally:
-        display_photo(now)
+        display_photo()
 
 
-def display_photo(date):
+def display_photo():
     try:
         print('Displaying photo')
-        img = pygame.image.load("{}/weddingshots-{}.jpg".format(photo_dir, date)).convert()
-        screen.blit(img, (0,0))
-        pygame.display.update()
-        #time.sleep(10)
-        #screen.fill(black)
-        #pygame.display.update()
-        #camera.start_preview()
-
-    except:
-        print('Could not find photo')
-        screen.fill(black)
-        pygame.display.update()
+        game.reviewing_phase()
+    except FileNotFoundError:
+        print('Could not find photo, going back to preview phase')
+        game.previewing_phase()
         camera.start_preview()
 
     finally:
         GPIO.output(led, 1)
 
-GPIO.add_event_detect(stop_button, GPIO.RISING, callback=shut_it_down, bouncetime=300)
 
 GPIO.output(led, 1)
 GPIO.output(32, 0)
