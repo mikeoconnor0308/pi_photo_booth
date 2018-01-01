@@ -1,6 +1,6 @@
 [submodule "instagram"]
 	path = instagram
 	url = https://github.com/LevPasha/Instagram-API-python.git
-[submodule "instagram-filters"]
-	path = instagram-filters
-	url = https://github.com/xuv/instagram-filters.git
+[submodule "instagramfilters"]
+	path = instagramfilters
+	url = https://github.com/mikeoconnor0308/instagram-filters.git
