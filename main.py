@@ -111,4 +111,6 @@ while True:
                 if event.key == pygame.K_BACKSPACE:
                     print("Back to preview")
                     game.previewing_phase()
+    # draws any rects have have been marked as dirty.
+    game.update()
 
