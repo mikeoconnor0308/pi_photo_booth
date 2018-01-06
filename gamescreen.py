@@ -148,7 +148,7 @@ class PhotoboothGame:
         """
         self.phase = GamePhase.FILTERING
         self.screen.fill(self.white)
-        self.position_in_center(self.photo)
+        self.render_main_photo(self.photo)
         self.load_images(os.path.join(self.photo_dir, "filtered"))
 
     def switch_to_phase(self, phase):
