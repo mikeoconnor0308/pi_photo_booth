@@ -29,7 +29,9 @@ if not os.path.exists(filter_dir):
     os.makedirs(filter_dir)
 
 game = PhotoboothGame(photo_dir)
-
+# skip to phase for debugging.
+start_phase = GamePhase.REVIEWING
+game.switch_to_phase(start_phase)
 
 def countdown(t):
     i = t

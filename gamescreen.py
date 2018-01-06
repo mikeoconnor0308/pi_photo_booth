@@ -120,6 +120,17 @@ class PhotoboothGame:
         self.render_row(os.path.join(self.photo_dir, "filtered"))
         pygame.display.update()
 
+    def switch_to_phase(self, phase):
+
+        if phase == GamePhase.PREVIEWING:
+            self.previewing_phase()
+        elif phase == GamePhase.CAPTURING:
+            self.capturing_phase()
+        elif phase == GamePhase.REVIEWING:
+            self.reviewing_phase()
+        elif phase == GamePhase.FILTERING:
+            self.filter_phase()
+
     def __init__(self, photo_path):
         # set up game screen
         pygame.init()
