@@ -49,19 +49,22 @@ class PhotoboothGame:
         rect.centery = self.screen.get_rect().centery + yadjust
 
         self.screen.blit(surface, rect)
+        self.dirty_rects.append(rect)
+
+    def render_main_photo(self, image):
+        # scale and adjust image, then render it.
+        w = 320
+        h = 320
+
+        im = pygame.transform.scale(image, (320, 320))
+        self.position_in_center(im)
 
     def reviewing_phase(self):
         self.phase = GamePhase.REVIEWING
         self.screen.fill(self.white)
         self.photo = pygame.image.load("{}/weddingshot.jpg".format(self.photo_dir)).convert()
 
-        # scale and adjust image, then render it.
-        w, h = self.photo.get_size()
-        scale = 0.5
-
-        self.photo = pygame.transform.scale(self.photo, (int(w * scale), int(h * scale)))
-        self.position_in_center(self.photo)
-        rect = self.photo.get_rect()
+        self.render_main_photo(self.photo)
 
         # Render text beneath photo
         textsurface = self.font.render('Upload photo?', False, (120, 120, 120))
@@ -96,7 +99,7 @@ class PhotoboothGame:
             photo = Photo(image_file, unscaled_image, image, coords)
             self.images.append(photo)
 
-        self.current_filter_index = 0
+        self.current_filter_index = 1
         self.render_row(self.current_filter_index)
 
     def render_row(self, selected_index):
@@ -110,6 +113,7 @@ class PhotoboothGame:
             # if image is the selected image, render border around it
             if index == selected_index:
                 self.render_border(image.surface, image.coords)
+                self.render_main_photo(image.unscaled_image)
             # otherwise just blit the image.
             else:
                 self.screen.blit(image.surface, image.coords)
@@ -161,6 +165,16 @@ class PhotoboothGame:
     def update(self):
         pygame.display.update(self.dirty_rects)
         self.dirty_rects.clear()
+
+    def increment_selected_filter(self):
+        assert(self.phase is GamePhase.FILTERING)
+        self.current_filter_index = (self.current_filter_index + 1) % len(self.images)
+        self.render_row(self.current_filter_index)
+
+    def decrement_selected_filter(self):
+        assert(self.phase is GamePhase.FILTERING)
+        self.current_filter_index = (self.current_filter_index - 1) % len(self.images)
+        self.render_row(self.current_filter_index)
 
     def __init__(self, photo_path):
         # set up game screen

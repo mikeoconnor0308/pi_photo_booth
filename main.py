@@ -14,7 +14,7 @@ from gamescreen import *
 import threading
 
 camera = picamera.PiCamera()
-camera.resolution = (640, 640)
+camera.resolution = (1280, 1280)
 camera.annotate_text_size = 70
 camera.annotate_background = picamera.Color('white')
 camera.annotate_foreground = picamera.Color('black')
@@ -30,7 +30,7 @@ if not os.path.exists(filter_dir):
 
 game = PhotoboothGame(photo_dir)
 # skip to phase for debugging.
-start_phase = GamePhase.REVIEWING
+start_phase = GamePhase.PREVIEWING
 game.switch_to_phase(start_phase)
 
 def countdown(t):
@@ -110,6 +110,13 @@ while True:
                     game.filter_phase()
                 if event.key == pygame.K_BACKSPACE:
                     print("Back to preview")
+                    game.previewing_phase()
+            elif game.phase == GamePhase.FILTERING:
+                if event.key == pygame.K_RIGHT:
+                    game.increment_selected_filter()
+                if event.key == pygame.K_LEFT:
+                    game.decrement_selected_filter()
+                if event.key == pygame.K_BACKSPACE:
                     game.previewing_phase()
     # draws any rects have have been marked as dirty.
     game.update()
